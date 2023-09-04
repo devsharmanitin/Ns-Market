@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load cart_tag %}
+{% block Content %}
+
+
+<!-- page-banner-area-start -->
+<div class="page-banner-area page-banner-height-2" data-background="{% static 'assets/img/banner/page-banner-4.jpg' %}">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="page-banner-content text-center">
+                    <h4 class="breadcrumb-title">Your Cart</h4>
+                    <div class="breadcrumb-two">
+                        <nav>
+                           <nav class="breadcrumb-trail breadcrumbs">
+                              <ul class="breadcrumb-menu">
+                                 <li class="breadcrumb-trail">
+                                    <a href="index.html"><span>Home</span></a>
+                                 </li>
+                                 <li class="trail-item">
+                                    <span>Cart</span>
+                                 </li>
+                              </ul>
+                           </nav> 
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- page-banner-area-end -->
+<!-- cart-area-start -->
+<section class="cart-area pt-120 pb-120">
+    <div class="container">
+       <div class="row">
+          <div class="col-12">
+                <form action="#">
+                   <div class="table-content table-responsive">
+                      <table class="table">
+                            <thead>
+                               <tr>
+                                  <th class="product-thumbnail">Images</th>
+                                  <th class="cart-product-name">Product</th>
+                                  <th class="product-price">Unit Price</th>
+                                  <th class="product-quantity">Quantity</th>
+                                  <th class="product-subtotal">Total</th>
+                                  <th class="product-remove">Remove</th>
+                               </tr>
+                            </thead>
+                            <tbody>
+                              {% for key,value in request.session.cart.items %}
+                               <tr id="id{{value.id}}">
+                                  <td class="product-thumbnail"><a href="shop-details.html"><img src="{{value.Product_Image}}" alt="" ></a></td>
+                                  <td class="product-name"><a href="shop-details.html">{{value.Product_Name}}</a></td>
+                                  <td class="product-price"><span class="amount">₹{{value.Price}}</span></td>
+                                  <td class="product-quantity">
+                                    <div class="row w-100">
+                                       <div class="col-4">
+                                          <a class="text-center" href="{% url 'item_decrement' id=value.product_id %}#id{{value.id}}">-</a>
+
+                                       </div>
+                                       <div class="col-4">
+                                          <input type="text" value="{{value.quantity}}" class="form-control border-0 text-center">
+                                       </div>
+                                       <div class="col-4">
+                                          <a href="{% url 'item_increment' id=value.product_id %}#id{{value.id}}" class="text-center">+</a>
+                                       </div>
+                                    </div>
+                                       
+                                       <!-- <div class="cart-plus-minus"><input type="text" value="1">
+                                          <a class="dec qtybutton" href="{% url 'item_decrement' key %}">-</a>
+                                          <a class="inc qtybutton" href="{% url 'item_increment' key %}">+</a>
+                                       </div> -->
+                                       
+                                  </td>
+                                  <td class="product-subtotal"><span class="amount">₹{{ value.Price|multiply:value.quantity }}</span></td>
+                                  <td class="product-remove"><a href="{% url 'item_clear' id=value.product_id %}"><i class="fa fa-times"></i></a></td>
+                               </tr>
+                               {%  endfor %}
+                               
+                            </tbody>
+                      </table>
+                   </div>
+                   <div class="row">
+                      <div class="col-12">
+                            <div class="coupon-all">
+                              <form action="" method="get">
+                                 <div class="coupon">
+                                 {% if Valid_Coupan %}
+                                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                       <strong>{{Coupan.Code}}!</strong> {{Valid_Coupan}}.
+                                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                  {% elif Invalid_COupan %}
+                                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                       <strong>{{Invalid_COupan}}!</strong>
+                                       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                  {% endif %}
+                                    <input id="coupon_code" class="input-text" name="coupon_code" value="{{Coupan.Code}}" placeholder="Coupon code" type="text">
+                                    <button class="tp-btn-h1"  type="submit">Apply
+                                       coupon</button>
+                                    </div>
+                                    <div class="coupon2">
+                                       <a  href="{% url 'cart_clear' %}" class="tp-btn-h1" name="update_cart" >Clear cart</a>
+                                    </div>
+                                 </form>
+                            </div>
+                      </div>
+                   </div>
+                   <div class="row justify-content-end">
+                      <div class="col-md-5">
+                            <div class="cart-page-total">
+                               <h2>Cart totals</h2>
+                               <ul class="mb-20">
+                                  <li>Subtotal <span>₹{{cart_total_amount}}</span></li>
+                                  <li>Packing Cost <span>₹{{Packing_Cost}}</span></li>
+                                  <li>Tax <span>₹{{Tax}}</span></li>
+                                  {% if cart_total_amount >= 500 %}
+                                  <li class="text-success">Delivery Charge <span class="text-success">Free</span></li>
+                                  {% if Valid_Coupan %}
+                                  <li class="text-success">Coupan Discount <span class="text-success">₹{{Discount_Code}}  <del>{{cart_total_amount}}</del> </span></li>
+
+                                  {% endif %}
+                                  <li class="text-danger">Total <span class="text-danger">₹{{Discount_Code|add:Packing_Cost|add:Tax}}</span></li>
+
+                                  {% else %}
+                                 
+                                  <li class="text-success">Delivery Charge <span class="text-success">₹ 120</span></li>
+                                  {% if Valid_Coupan %}
+                                  <li class="text-success">Coupan Discount <span class="text-success">₹{{Discount_Code}}</span></li>
+                                  {% endif %}
+                                  <li class="text-danger">Total <span class="text-danger">₹{{Discount_Code|add:Packing_Cost|add:Tax|add:120}}</span></li>
+                                  {% endif %}
+                               </ul>
+                               <form action="" method="post">
+                              {%csrf_token %}
+                               <button type="submit" class="tp-btn-h1" id="checkout-button">Proceed to checkout</button>
+                               </form>
+                               <!-- cart-area-end -->
+                              <script src="https://js.stripe.com/v3/"></script>
+                              <script>
+                              const csrftoken = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+
+                              <!-- Creating Instance of Stripe Object  -->
+                              var stripe = Stripe("pk_test_51NZSvsSEgI2391x62LGaJQAii7m1Q8rPjZ9BLzudgwkDDGPSeH8vYSkZT5NJgIn6m7XeuSa7pfjaJeDZfJGGOdjd003jUb9jJu");
+                              var checkoutButton = document.getElementById('checkout-button');
+                              
+                              checkoutButton.addEventListener('click', function() {
+                                fetch("{% url 'CheckOut' %}", {
+                                  method: "POST",
+                                  headers: {
+                                    'X-CSRFToken': csrftoken
+                                  }
+                                }).then(function(response) {
+                                 console.log(response)
+                                  return response.json();
+                                }).then(function(session) {
+                                  // Redirect to the Stripe payment form using the obtained Checkout Session ID
+                                  console.log(session.id); // Check the session ID value in the console (optional)
+                                  stripe.redirectToCheckout({
+                                    sessionId: session.id
+                                  });
+                                });
+                              });
+                           </script>
+
+                            </div>
+                      </div>
+                   </div>
+                </form>
+          </div>
+       </div>
+    </div>
+ </section>
+ 
+
+{% endblock %}
